@@ -345,13 +345,14 @@ function to(x, y, z)
 		while pos.z < z do
 			up()
 			pos = getPos()
+		end
 	end
 	
 	if pos.x ~= x then
 		if pos.x > x then
-			face(1)
-		else
 			face(3)
+		else
+			face(1)
 		end
 		
 		while pos.x ~= x do
