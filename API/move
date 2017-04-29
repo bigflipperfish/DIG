@@ -1,0 +1,375 @@
+--------------------------------------------------------------------------------
+-- Filename: move
+--
+-- Description:
+-- A group of common functions for turtle's navigational use
+--------------------------------------------------------------------------------
+
+--[[ serialize
+--------------------------------------------------------------------------------
+-- Serializes data and writes it to a file within the /data directory
+--
+-- Arguments:
+-- data    - (variable) the name of the data that is to be serialized 
+-- name    - (string) the name of the file that the serialized data is to be
+--           written to
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function serialize(data, name)
+	if not fs.exists('/data') then
+		fs.makeDir('/data')
+	end
+	local file = fs.open('/data/'..name, 'w')
+	file.write(textutils.serialize(data))
+	file.close()
+end
+
+--[[ unserialize
+--------------------------------------------------------------------------------
+-- Reads data from a given file within the /data directory and unserializes it
+--
+-- Arguments:
+-- name    - (string) the name of the file that contains the serialized data
+--
+-- Returns:
+-- unserialized data
+------------------------------------------------------------------------------]]
+function unserialize(name)
+	local file = fs.open('/data/'..name, 'r')
+	local data = textutils.unserialize(file.readAll())
+	file.close()
+	return data
+end
+
+--[[ initialize positional data
+--------------------------------------------------------------------------------
+-- Initializes the given position of the turtle in a table and then saves it to
+-- a file called posData
+--
+-- Arguments:
+-- x       - (number)the initial x position of the turtle
+-- y       - (number)the initial y position of the turtle
+-- z       - (number)the initial z position of the turtle
+-- facing  - (number)(0 thru 3) the initial direction the turtle is facing
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function initPos(x,y,z,facing)
+	local pos = {}
+	pos.x = x
+	pos.y = y
+	pos.z = z
+	pos.facing = facing
+  
+	serialize(pos, 'posData')
+end
+
+--[[ get current positional data
+--------------------------------------------------------------------------------
+-- Gets the saved position of the turtle from a table in the posData file
+--
+-- Arguments:
+-- None
+--
+-- Returns:
+-- if posData file exists, returns a table containing the x, y, z, and facing
+-- position of the turtle
+-- else creates an error event
+------------------------------------------------------------------------------]]
+function getPos()
+	if fs.exists('/data/posData') then
+		local pos = unserialize('posData')
+		return pos
+	else
+		error("positional data missing")
+	end
+end
+
+--[[ update current positional data
+--------------------------------------------------------------------------------
+-- Writes a given table to a file called posData
+--
+-- Arguments:
+-- pos     - (table) the table containing positional data that is to be written
+--           to the file
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function setPos(pos)
+	serialize(pos, 'posData')
+end
+
+--[[ turns the turtle right
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle turns right a
+-- given number of times, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to turn right
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function turnRight(reps)
+	if reps == nil then
+		reps = 1
+	end
+	
+	local pos = getPos()
+	
+	for i=1, reps do
+		turtle.turnRight()
+		pos.facing = pos.facing + 1
+		if pos.facing == 4 then
+			pos.facing = 0
+		end
+	end
+	
+	setPos(pos)
+end
+
+--[[ turns the turtle left
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle turns left a
+-- given number of times, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to turn left
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function turnLeft(reps)
+	if reps == nil then
+		reps = 1
+	end
+	
+	local pos = getPos()
+	
+	for i=1, reps do
+		turtle.turnLeft()
+		pos.facing = pos.facing - 1
+		if pos.facing == -1 then
+			pos.facing = 3
+		end
+	end
+	
+	setPos(pos)
+end
+
+--[[ turtle faces a direction
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle faces a given
+-- direction, and updates the new positional data.
+--
+-- Arguments:
+-- direct  - (number) (0 thru 3) the direction the turtle should face
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function face(direct)
+	local pos = getPos()
+	
+	local difference =((pos.facing - direct) %4)
+ 
+	if pos.facing ~= direct then
+		if difference > 2 then
+			turnRight()
+		elseif difference < 2 then
+			turnLeft()
+		elseif difference == 2 then
+			turnRight(2)
+		end
+	end
+end
+
+--[[ moves turtle forward
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle moves forward
+-- a given number of times, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to move forward
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function forward(reps)
+	if reps == nil then
+		reps = 1
+	end
+	
+	local pos = getPos()
+	
+	for i=1,reps do
+		while not turtle.forward() do
+			sleep(0.8)
+			turtle.dig()
+		end
+		
+		if pos.facing == 0 then
+			pos.y = pos.y + 1
+		elseif pos.facing == 1 then
+			pos.x = pos.x + 1
+		elseif pos.facing == 2 then
+			pos.y = pos.y - 1
+		elseif pos.facing == 3 then
+			pos.x = pos.x - 1
+		end
+		
+		setPos(pos)
+	end
+end
+  
+--[[ moves turtle back
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle moves
+-- backward a given number of times, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to move backward
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function back(reps)
+	if reps == nil then
+		reps = 1
+	end
+	
+	local pos = getPos()
+	
+	for i=1,reps do
+		while not turtle.back() do
+			sleep(0.8)
+		end
+		
+		if pos.facing == 0 then
+			pos.y = pos.y - 1
+		elseif pos.facing == 1 then
+			pos.x = pos.x - 1
+		elseif pos.facing == 2 then
+			pos.y = pos.y + 1
+		elseif pos.facing == 3 then
+			pos.x = pos.x + 1
+		end
+		
+		setPos(pos)
+	end
+end
+
+--[[ moves turtle up
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle moves up a
+-- given number of times, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to move up
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function up(reps)
+	if reps == nil then
+		reps = 1
+	end
+	
+	local pos = getPos()
+	
+	for i=1,reps do
+		while not turtle.up() do
+			sleep(0.8)
+			turtle.digUp()
+		end
+		
+		pos.z = pos.z + 1
+		
+		setPos(pos)
+	end
+end
+
+--[[ moves turtle down
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle moves down a
+-- given number of times, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to move down
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function down(reps)
+	if reps == nil then
+		reps = 1
+	end
+	
+	local pos = getPos()
+	
+	for i=1,reps do
+		while not turtle.down() do
+			sleep(0.8)
+			turtle.digDown()
+		end
+		
+		pos.z = pos.z - 1
+		
+		setPos(pos)
+	end
+end
+
+--[[ moves turtle to specified coordinates
+--------------------------------------------------------------------------------
+-- Gets the turtle's positional data from the posData file, turtle moves to a
+-- given set of coordinates, and updates the new positional data.
+--
+-- Arguments:
+-- reps    - (number) the number of times the turtle is to move down
+--
+-- Returns:
+-- Nothing
+------------------------------------------------------------------------------]]
+function to(x, y, z)
+	local pos = getPos()
+	
+	if pos.z ~= z then
+		while pos.z > z do
+			down()
+			pos = getPos()
+		end
+		while pos.z < z do
+			up()
+			pos = getPos()
+	end
+	
+	if pos.x ~= x then
+		if pos.x > x then
+			face(1)
+		else
+			face(3)
+		end
+		
+		while pos.x ~= x do
+			forward()
+			pos = getPos()
+		end
+	end
+	
+	if pos.y ~= y then
+		if pos.y > y then
+			face(2)
+		else
+			face(0)
+		end
+		
+		while pos.y ~= y do
+			forward()
+			pos = getPos()
+		end
+	end
+end
