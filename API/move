@@ -103,7 +103,7 @@ function setPos(pos)
 	serialize(pos, 'posData')
 end
 
---[[ turns the turtle right
+--[[ turn the turtle right
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle turns right a
 -- given number of times, and updates the new positional data.
@@ -132,7 +132,7 @@ function turnRight(reps)
 	setPos(pos)
 end
 
---[[ turns the turtle left
+--[[ turn the turtle left
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle turns left a
 -- given number of times, and updates the new positional data.
@@ -161,7 +161,7 @@ function turnLeft(reps)
 	setPos(pos)
 end
 
---[[ turtle faces a direction
+--[[ face the turtle in a direction
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle faces a given
 -- direction, and updates the new positional data.
@@ -188,7 +188,7 @@ function face(direct)
 	end
 end
 
---[[ moves turtle forward
+--[[ move turtle forward
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle moves forward
 -- a given number of times, and updates the new positional data.
@@ -226,7 +226,7 @@ function forward(reps)
 	end
 end
   
---[[ moves turtle back
+--[[ move turtle back
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle moves
 -- backward a given number of times, and updates the new positional data.
@@ -263,7 +263,7 @@ function back(reps)
 	end
 end
 
---[[ moves turtle up
+--[[ move turtle up
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle moves up a
 -- given number of times, and updates the new positional data.
@@ -293,7 +293,7 @@ function up(reps)
 	end
 end
 
---[[ moves turtle down
+--[[ move turtle down
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle moves down a
 -- given number of times, and updates the new positional data.
@@ -323,7 +323,7 @@ function down(reps)
 	end
 end
 
---[[ moves turtle to specified coordinates
+--[[ move turtle to specified coordinates
 --------------------------------------------------------------------------------
 -- Gets the turtle's positional data from the posData file, turtle moves to a
 -- given set of coordinates, and updates the new positional data.
